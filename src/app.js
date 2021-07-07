@@ -5,6 +5,11 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls"
 import Stats from "stats.js"
 import * as Dat from "dat.gui"
 
+// @ts-ignore
+import vertexShader from "./shaders/vertex.glsl?raw"
+// @ts-ignore
+import fragmentShader from "./shaders/fragment.glsl?raw"
+
 /**
  * Global variables
  */
@@ -28,19 +33,27 @@ const scene = new THREE.Scene()
  * Camera
  */
 const camera = new THREE.PerspectiveCamera(80, canvas.width / canvas.height, 0.1, 1000)
-camera.position.set(0, 2, 5)
+camera.position.set(0, 0, 5)
 
 /**
- * Demo box
+ * Demo Plane
  */
-function addBox() {
-	const geometry = new THREE.BoxGeometry(2, 2, 2)
-	const material = new THREE.MeshNormalMaterial()
+function addPlane() {
+	const geometry = new THREE.PlaneGeometry(5, 5, 10, 10)
+	const material = new THREE.ShaderMaterial({
+		uniforms: {
+			uTime: { value: 0.0 },
+			uResolution: { value: new THREE.Vector2(canvas.width, canvas.height) }
+		},
+		vertexShader,
+		fragmentShader,
+		wireframe: true
+	})
 	const mesh = new THREE.Mesh(geometry, material)
 	return mesh
 }
-const box = addBox()
-scene.add(box)
+const plane = addPlane()
+scene.add(plane)
 
 /**
  * Renderer
@@ -67,7 +80,11 @@ root.appendChild(stats.dom)
 /**
  * Animation loop
  */
+const clock = new THREE.Clock()
 function animate() {
+	const elapsedTime = clock.getElapsedTime()
+	plane.material.uniforms.uTime.value = elapsedTime
+
 	stats.update()
 	orbit.update()
 	renderer.render(scene, camera)
