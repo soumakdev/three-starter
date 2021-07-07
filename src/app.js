@@ -67,7 +67,16 @@ root.appendChild(stats.dom)
 /**
  * Animation loop
  */
+const clock = new THREE.Clock()
+let then = performance.now()
 function animate() {
+	// Elapsed time
+	const elapsedTime = clock.getElapsedTime()
+	// Delta time
+	const now = performance.now()
+	const deltaTime = now - then
+	then = now
+
 	stats.update()
 	orbit.update()
 	renderer.render(scene, camera)
